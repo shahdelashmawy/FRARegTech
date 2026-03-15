@@ -1,0 +1,134 @@
+version: '3.9'
+
+services:
+  # PostgreSQL with pgvector extension
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: fraregtech_db
+    environment:
+      POSTGRES_DB: fraregtech
+      POSTGRES_USER: fraregtech
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-fraregtech_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fraregtech"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Celery task queue
+  redis:
+    image: redis:7-alpine
+    container_name: fraregtech_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fraregtech_backend
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fraregtech:${DB_PASSWORD:-fraregtech_password}@db:5432/fraregtech
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery Worker (background tasks: scraping, notifications)
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fraregtech_celery
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fraregtech:${DB_PASSWORD:-fraregtech_password}@db:5432/fraregtech
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.core.celery_app worker --loglevel=info -Q default,scraping,notifications
+
+  # Celery Beat (task scheduler)
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fraregtech_celery_beat
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fraregtech:${DB_PASSWORD:-fraregtech_password}@db:5432/fraregtech
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.core.celery_app beat --loglevel=info
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fraregtech_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8000/api
+    depends_on:
+      - backend
+
+  # Flower - Celery monitoring UI
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fraregtech_flower
+    env_file:
+      - ./backend/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery_worker
+    command: celery -A app.core.celery_app flower --port=5555
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
