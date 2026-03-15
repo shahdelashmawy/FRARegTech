@@ -2,6 +2,9 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "ajv": "^8"
+  },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@tanstack/react-query": "^5.90.21",
