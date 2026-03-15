@@ -21,7 +21,9 @@ const SearchPage: React.FC = () => {
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [mode, setMode] = useState<'text' | 'semantic'>('text');
   const [selectedType, setSelectedType] = useState<string>('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [dateFrom, setDateFrom] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
 
