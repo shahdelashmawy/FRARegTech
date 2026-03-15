@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "overrides": {
-    "ajv": "^8"
+    "ajv": "^8",
+    "fork-ts-checker-webpack-plugin": {
+      "ajv": "^6.12.6",
+      "schema-utils": "^3.1.1"
+    }
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
