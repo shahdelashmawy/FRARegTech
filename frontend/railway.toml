@@ -1,8 +1,7 @@
 [build]
-builder = "nixpacks"
-buildCommand = "npm install --legacy-peer-deps && npm run build"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "caddy file-server --root build --listen :$PORT"
 healthcheckPath = "/"
 healthcheckTimeout = 30
