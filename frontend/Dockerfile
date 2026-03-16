@@ -1,7 +1,7 @@
 FROM node:16-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --legacy-peer-deps
+COPY package*.json .npmrc ./
+RUN npm install
 COPY . .
 ARG REACT_APP_API_URL=http://localhost:8000/api
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
