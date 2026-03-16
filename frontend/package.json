@@ -56,11 +56,6 @@
       "last 1 safari version"
     ]
   },
-  "overrides": {
-    "ajv": "^8",
-    "ajv-keywords": "^5",
-    "schema-utils": "^4"
-  },
   "devDependencies": {
     "@types/react-router-dom": "^5.3.3",
     "autoprefixer": "^10.4.19",
