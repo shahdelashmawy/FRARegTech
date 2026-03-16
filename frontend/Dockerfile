@@ -1,11 +1,10 @@
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json .npmrc ./
 RUN npm install && \
-    rm -rf node_modules/terser-webpack-plugin/node_modules/schema-utils && \
-    rm -rf node_modules/terser-webpack-plugin/node_modules/ajv-keywords && \
-    rm -rf node_modules/fork-ts-checker-webpack-plugin/node_modules/schema-utils && \
-    rm -rf node_modules/fork-ts-checker-webpack-plugin/node_modules/ajv-keywords
+    cd node_modules/fork-ts-checker-webpack-plugin && \
+    npm install ajv@^6.12.6 ajv-keywords@^3 schema-utils@^2 --no-save && \
+    cd /app
 COPY . .
 ARG REACT_APP_API_URL=http://localhost:8000/api
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
