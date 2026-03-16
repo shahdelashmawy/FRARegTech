@@ -9,6 +9,8 @@ ENV CI=false
 ENV GENERATE_SOURCEMAP=false
 RUN npm run build
 
+RUN ls -la /app/build && echo "Build exists" || echo "Build MISSING"
+
 FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf.template
