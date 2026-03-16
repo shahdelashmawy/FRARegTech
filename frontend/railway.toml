@@ -3,6 +3,6 @@ builder = "nixpacks"
 buildCommand = "npm install --legacy-peer-deps && npm run build"
 
 [deploy]
-startCommand = "node server.js"
+startCommand = "caddy file-server --root build --listen :$PORT"
 healthcheckPath = "/"
 healthcheckTimeout = 30
