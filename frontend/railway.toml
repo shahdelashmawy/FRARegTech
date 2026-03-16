@@ -1,8 +1,8 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install --legacy-peer-deps && npm run build"
+buildCommand = "npm install --legacy-peer-deps && npm run build && npm install -g serve"
 
 [deploy]
-startCommand = "./node_modules/.bin/serve -s build -l $PORT"
+startCommand = "serve -s build -l $PORT"
 healthcheckPath = "/"
 healthcheckTimeout = 30
