@@ -5,6 +5,7 @@ import { Send, Bot, Trash2, Lightbulb, Loader } from 'lucide-react';
 import { clsx } from 'clsx';
 import toast from 'react-hot-toast';
 import { askAI } from '../lib/api';
+import { getErrorMessage } from '../lib/api';
 import type { ChatMessage as ChatMessageType } from '../types';
 import ChatMessage from '../components/ai/ChatMessage';
 
@@ -81,7 +82,7 @@ const AIQueryPage: React.FC = () => {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || t('error'));
+      toast.error(getErrorMessage(err, t('error')));
       // Remove the user message on error
       setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
     } finally {

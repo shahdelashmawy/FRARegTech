@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { User, Mail, Phone, Globe, Lock, Save, X, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { updateProfile, changePassword } from '../lib/api';
+import { getErrorMessage } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 
 const ProfilePage: React.FC = () => {
@@ -49,7 +50,7 @@ const ProfilePage: React.FC = () => {
       i18n.changeLanguage(updatedUser.preferred_language);
       toast.success(t('profileUpdated'));
     },
-    onError: (err: any) => toast.error(err.response?.data?.detail || t('error')),
+    onError: (err: any) => toast.error(getErrorMessage(err, t('error'))),
   });
 
   const passwordMutation = useMutation({
@@ -59,7 +60,7 @@ const ProfilePage: React.FC = () => {
       toast.success(isArabic ? 'تم تغيير كلمة المرور بنجاح' : 'Password changed successfully');
       setPasswords({ current_password: '', new_password: '', confirm_password: '' });
     },
-    onError: (err: any) => toast.error(err.response?.data?.detail || t('error')),
+    onError: (err: any) => toast.error(getErrorMessage(err, t('error'))),
   });
 
   const addKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {

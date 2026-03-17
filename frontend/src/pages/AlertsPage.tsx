@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, Plus, Loader, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getAlerts, createAlert, deleteAlert, toggleAlert, sendTestAlert } from '../lib/api';
+import { getErrorMessage } from '../lib/api';
 import type { RegulationType, Alert } from '../types';
 import AlertCard from '../components/alerts/AlertCard';
 
@@ -37,7 +38,7 @@ const AlertsPage: React.FC = () => {
       setForm({ name: '', keywords: [], regulation_types: [], notification_email: true, notification_whatsapp: false });
       setKeywordInput('');
     },
-    onError: (err: any) => toast.error(err.response?.data?.detail || t('error')),
+    onError: (err: any) => toast.error(getErrorMessage(err, t('error'))),
   });
 
   const toggleMutation = useMutation({
