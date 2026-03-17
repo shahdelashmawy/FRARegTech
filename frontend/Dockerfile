@@ -1,4 +1,5 @@
-FROM nginx:alpine
-COPY build/ /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf.template
-CMD ["/bin/sh", "-c", "envsubst '$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+FROM node:18-alpine
+WORKDIR /app
+COPY build/ ./build/
+RUN npm install -g serve
+CMD ["sh", "-c", "serve -s build -l $PORT"]
