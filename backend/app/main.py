@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.database import init_db
-from app.api import auth, regulations, documents, alerts, search, ai_query, scraper
+from app.api import auth, regulations, documents, alerts, search, ai_query, scraper, stats
 
 # Configure logging
 logging.basicConfig(
@@ -56,15 +56,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# CORS — allow all origins (JWT auth via Authorization header, no cookies needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        settings.FRONTEND_URL,
-        "http://localhost:3000",
-        "http://localhost:3001",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -77,6 +73,7 @@ app.include_router(alerts.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
 app.include_router(ai_query.router, prefix="/api")
 app.include_router(scraper.router, prefix="/api")
+app.include_router(stats.router, prefix="/api")
 
 
 @app.get("/", tags=["Health"])

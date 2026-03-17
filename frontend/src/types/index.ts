@@ -4,10 +4,11 @@ export interface User {
   full_name: string;
   whatsapp_number?: string;
   preferred_language: 'en' | 'ar';
-  tracked_keywords: string[];
-  notify_email: boolean;
-  notify_whatsapp: boolean;
+  keywords: string[];
+  notification_email: boolean;
+  notification_whatsapp: boolean;
   is_active: boolean;
+  is_admin: boolean;
   created_at: string;
 }
 
@@ -17,7 +18,7 @@ export interface Regulation {
   id: number;
   title_en: string;
   title_ar: string;
-  type: RegulationType;
+  regulation_type: string;
   content_en?: string;
   content_ar?: string;
   summary_en?: string;
@@ -26,8 +27,8 @@ export interface Regulation {
   source_url?: string;
   tags: string[];
   is_active: boolean;
+  scraped_at: string;
   created_at: string;
-  updated_at: string;
 }
 
 export interface Document {
@@ -47,9 +48,7 @@ export interface Alert {
   id: number;
   name: string;
   keywords: string[];
-  regulation_types: RegulationType[];
-  notify_email: boolean;
-  notify_whatsapp: boolean;
+  regulation_types: string[];
   is_active: boolean;
   last_triggered?: string;
   created_at: string;

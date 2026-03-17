@@ -35,7 +35,7 @@ const RegulationCard: React.FC<RegulationCardProps> = ({ regulation, compact = f
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <RegulationBadge type={regulation.type} />
+        <RegulationBadge type={regulation.regulation_type as any} />
         <div className="flex items-center gap-1 text-gray-400 text-xs flex-shrink-0">
           <Calendar size={12} />
           <span>{formattedDate}</span>

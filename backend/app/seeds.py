@@ -174,7 +174,7 @@ async def seed_initial_data():
         if not admin_check.scalar_one_or_none():
             admin = User(
                 email="admin@fraregtech.eg",
-                password_hash=get_password_hash("Admin@FRA2024!"),
+                password_hash=get_password_hash("Admin@123"),
                 full_name="FRA RegTech Admin",
                 preferred_language="en",
                 keywords=["fintech", "regulation", "compliance"],

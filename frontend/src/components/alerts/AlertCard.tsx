@@ -88,18 +88,10 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert, onToggle, onDelete, onTest
 
       {/* Notification methods */}
       <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
-        {alert.notify_email && (
-          <div className="flex items-center gap-1 text-xs text-gray-500">
-            <Mail size={12} />
-            <span>{t('emailNotification')}</span>
-          </div>
-        )}
-        {alert.notify_whatsapp && (
-          <div className="flex items-center gap-1 text-xs text-gray-500">
-            <MessageCircle size={12} />
-            <span>{t('whatsappNotification')}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-1 text-xs text-gray-500">
+          <Mail size={12} />
+          <span>{t('emailNotification')}</span>
+        </div>
         {alert.last_triggered && (
           <div className="ml-auto text-xs text-gray-400">
             {t('triggered')}: {new Date(alert.last_triggered).toLocaleDateString()}

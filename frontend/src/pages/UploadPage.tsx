@@ -15,6 +15,7 @@ import {
 import { clsx } from 'clsx';
 import toast from 'react-hot-toast';
 import { getDocuments, uploadDocument, deleteDocument } from '../lib/api';
+import { getErrorMessage } from '../lib/api';
 import type { RegulationType, Document } from '../types';
 
 const TYPES: RegulationType[] = ['Law', 'Decree', 'Circular', 'Announcement'];
@@ -53,7 +54,7 @@ const UploadPage: React.FC = () => {
       setForm({ title: '', source_url: '', regulation_type: '', published_date: '', tags: '' });
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.detail || t('error'));
+      toast.error(getErrorMessage(err, t('error')));
     },
   });
 

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { login } from '../lib/api';
+import { login, getErrorMessage } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import LanguageToggle from '../components/common/LanguageToggle';
 
@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
       toast.success(t('loginSuccess'));
       navigate('/dashboard');
     } catch (err: any) {
-      const msg = err.response?.data?.detail || t('invalidCredentials');
+      const msg = getErrorMessage(err, t('invalidCredentials'));
       toast.error(msg);
     } finally {
       setLoading(false);

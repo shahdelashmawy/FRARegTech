@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Lock, Mail, User, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { register } from '../lib/api';
+import { register, getErrorMessage } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import LanguageToggle from '../components/common/LanguageToggle';
 
@@ -48,7 +48,7 @@ const RegisterPage: React.FC = () => {
       toast.success(t('registerSuccess'));
       navigate('/dashboard');
     } catch (err: any) {
-      const msg = err.response?.data?.detail || t('error');
+      const msg = getErrorMessage(err, t('error'));
       toast.error(msg);
     } finally {
       setLoading(false);

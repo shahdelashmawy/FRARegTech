@@ -135,9 +135,24 @@ export const getStats = () =>
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 export const updateProfile = (data: Partial<User>) =>
-  api.put<User>('/auth/profile', data).then((r) => r.data);
+  api.put<User>('/auth/me', data).then((r) => r.data);
 
 export const changePassword = (current_password: string, new_password: string) =>
   api.post('/auth/change-password', { current_password, new_password }).then((r) => r.data);
+
+/** Extract a human-readable string from FastAPI errors (detail can be a string OR an array of validation objects). */
+export function getErrorMessage(err: any, fallback = 'An error occurred'): string {
+  // Network error (CORS, server down, no connection)
+  if (!err?.response) {
+    return 'Cannot reach server. Please check your connection or try again later.';
+  }
+  const detail = err.response.data?.detail;
+  if (!detail) return fallback;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail.map((e: any) => e.msg?.replace(/^Value error,\s*/i, '') || JSON.stringify(e)).join(', ');
+  }
+  return fallback;
+}
 
 export default api;
