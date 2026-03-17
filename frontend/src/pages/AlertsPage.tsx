@@ -19,8 +19,8 @@ const AlertsPage: React.FC = () => {
     name: '',
     keywords: [] as string[],
     regulation_types: [] as RegulationType[],
-    notify_email: true,
-    notify_whatsapp: false,
+    notification_email: true,
+    notification_whatsapp: false,
   });
 
   const { data: alerts, isLoading } = useQuery({
@@ -34,7 +34,7 @@ const AlertsPage: React.FC = () => {
       toast.success(isArabic ? 'تم إنشاء التنبيه' : 'Alert created');
       queryClient.invalidateQueries({ queryKey: ['alerts'] });
       setShowForm(false);
-      setForm({ name: '', keywords: [], regulation_types: [], notify_email: true, notify_whatsapp: false });
+      setForm({ name: '', keywords: [], regulation_types: [], notification_email: true, notification_whatsapp: false });
       setKeywordInput('');
     },
     onError: (err: any) => toast.error(err.response?.data?.detail || t('error')),
@@ -180,8 +180,8 @@ const AlertsPage: React.FC = () => {
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.notify_email}
-                    onChange={(e) => setForm((p) => ({ ...p, notify_email: e.target.checked }))}
+                    checked={form.notification_email}
+                    onChange={(e) => setForm((p) => ({ ...p, notification_email: e.target.checked }))}
                     className="text-accent"
                   />
                   <span className="text-sm text-gray-600">{t('emailNotification')}</span>
@@ -189,8 +189,8 @@ const AlertsPage: React.FC = () => {
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={form.notify_whatsapp}
-                    onChange={(e) => setForm((p) => ({ ...p, notify_whatsapp: e.target.checked }))}
+                    checked={form.notification_whatsapp}
+                    onChange={(e) => setForm((p) => ({ ...p, notification_whatsapp: e.target.checked }))}
                     className="text-accent"
                   />
                   <span className="text-sm text-gray-600">{t('whatsappNotification')}</span>

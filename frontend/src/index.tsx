@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import './lib/i18n';
 import App from './App';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -24,6 +25,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
+    <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <App />
@@ -50,6 +52,7 @@ root.render(
         />
       </BrowserRouter>
     </QueryClientProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );
 

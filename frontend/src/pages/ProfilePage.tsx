@@ -16,9 +16,9 @@ const ProfilePage: React.FC = () => {
     email: user?.email || '',
     whatsapp_number: user?.whatsapp_number || '',
     preferred_language: user?.preferred_language || 'en',
-    notify_email: user?.notify_email ?? true,
-    notify_whatsapp: user?.notify_whatsapp ?? false,
-    tracked_keywords: user?.tracked_keywords || [],
+    notification_email: user?.notification_email ?? true,
+    notification_whatsapp: user?.notification_whatsapp ?? false,
+    keywords: user?.keywords || [],
   });
 
   const [keywordInput, setKeywordInput] = useState('');
@@ -35,9 +35,9 @@ const ProfilePage: React.FC = () => {
         email: user.email,
         whatsapp_number: user.whatsapp_number || '',
         preferred_language: user.preferred_language,
-        notify_email: user.notify_email,
-        notify_whatsapp: user.notify_whatsapp,
-        tracked_keywords: user.tracked_keywords || [],
+        notification_email: user.notification_email,
+        notification_whatsapp: user.notification_whatsapp,
+        keywords: user.keywords || [],
       });
     }
   }, [user]);
@@ -66,15 +66,15 @@ const ProfilePage: React.FC = () => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       const kw = keywordInput.trim();
-      if (kw && !profile.tracked_keywords.includes(kw)) {
-        setProfile((p) => ({ ...p, tracked_keywords: [...p.tracked_keywords, kw] }));
+      if (kw && !profile.keywords.includes(kw)) {
+        setProfile((p) => ({ ...p, keywords: [...p.keywords, kw] }));
       }
       setKeywordInput('');
     }
   };
 
   const removeKeyword = (kw: string) => {
-    setProfile((p) => ({ ...p, tracked_keywords: p.tracked_keywords.filter((k) => k !== kw) }));
+    setProfile((p) => ({ ...p, keywords: p.keywords.filter((k) => k !== kw) }));
   };
 
   const handleProfileSubmit = (e: React.FormEvent) => {
@@ -174,7 +174,7 @@ const ProfilePage: React.FC = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('trackedKeywords')}</label>
           <div className="flex flex-wrap gap-2 p-3 border border-gray-300 rounded-lg min-h-[48px]">
-            {profile.tracked_keywords.map((kw) => (
+            {profile.keywords.map((kw) => (
               <span
                 key={kw}
                 className="flex items-center gap-1 px-2.5 py-1 bg-accent/10 text-accent-dark rounded-full text-xs font-medium"
@@ -191,7 +191,7 @@ const ProfilePage: React.FC = () => {
               onChange={(e) => setKeywordInput(e.target.value)}
               onKeyDown={addKeyword}
               placeholder={
-                profile.tracked_keywords.length === 0
+                profile.keywords.length === 0
                   ? (isArabic ? 'أدخل كلمة واضغط Enter' : 'Type keyword and press Enter')
                   : ''
               }
@@ -207,8 +207,8 @@ const ProfilePage: React.FC = () => {
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={profile.notify_email}
-                onChange={(e) => setProfile((p) => ({ ...p, notify_email: e.target.checked }))}
+                checked={profile.notification_email}
+                onChange={(e) => setProfile((p) => ({ ...p, notification_email: e.target.checked }))}
                 className="text-accent"
               />
               <span className="text-sm text-gray-600">{t('notifyByEmail')}</span>
@@ -216,8 +216,8 @@ const ProfilePage: React.FC = () => {
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={profile.notify_whatsapp}
-                onChange={(e) => setProfile((p) => ({ ...p, notify_whatsapp: e.target.checked }))}
+                checked={profile.notification_whatsapp}
+                onChange={(e) => setProfile((p) => ({ ...p, notification_whatsapp: e.target.checked }))}
                 className="text-accent"
               />
               <span className="text-sm text-gray-600">{t('notifyByWhatsApp')}</span>

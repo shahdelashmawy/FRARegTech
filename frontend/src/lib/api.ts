@@ -135,7 +135,7 @@ export const getStats = () =>
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 export const updateProfile = (data: Partial<User>) =>
-  api.put<User>('/auth/profile', data).then((r) => r.data);
+  api.put<User>('/auth/me', data).then((r) => r.data);
 
 export const changePassword = (current_password: string, new_password: string) =>
   api.post('/auth/change-password', { current_password, new_password }).then((r) => r.data);
