@@ -142,11 +142,15 @@ export const changePassword = (current_password: string, new_password: string) =
 
 /** Extract a human-readable string from FastAPI errors (detail can be a string OR an array of validation objects). */
 export function getErrorMessage(err: any, fallback = 'An error occurred'): string {
-  const detail = err?.response?.data?.detail;
+  // Network error (CORS, server down, no connection)
+  if (!err?.response) {
+    return 'Cannot reach server. Please check your connection or try again later.';
+  }
+  const detail = err.response.data?.detail;
   if (!detail) return fallback;
   if (typeof detail === 'string') return detail;
   if (Array.isArray(detail)) {
-    return detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+    return detail.map((e: any) => e.msg?.replace(/^Value error,\s*/i, '') || JSON.stringify(e)).join(', ');
   }
   return fallback;
 }
