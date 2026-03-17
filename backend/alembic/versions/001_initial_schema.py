@@ -1,7 +1,7 @@
 """Initial database schema with all tables and pgvector support
 
 Revision ID: 001
-Revises: 
+Revises:
 Create Date: 2024-01-01 00:00:00.000000
 
 """
@@ -20,8 +20,20 @@ VECTOR_DIM = 384  # paraphrase-multilingual-MiniLM-L12-v2
 
 
 def upgrade() -> None:
-    # Enable pgvector extension
-    op.execute("CREATE EXTENSION IF NOT EXISTS vector")
+    # Try to enable pgvector extension (optional — core tables work without it)
+    conn = op.get_bind()
+    pgvector_available = False
+    try:
+        conn.execute(sa.text("SAVEPOINT pgvector_check"))
+        conn.execute(sa.text("CREATE EXTENSION IF NOT EXISTS vector"))
+        conn.execute(sa.text("RELEASE SAVEPOINT pgvector_check"))
+        pgvector_available = True
+    except Exception as e:
+        import logging
+        logging.getLogger("alembic").warning(
+            f"pgvector extension not available, skipping vector columns: {e}"
+        )
+        conn.execute(sa.text("ROLLBACK TO SAVEPOINT pgvector_check"))
 
     # Create users table
     op.create_table(
@@ -62,22 +74,12 @@ def upgrade() -> None:
         sa.Column("is_active", sa.Boolean(), nullable=True, server_default="true"),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()")),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column(
-            "embedding",
-            sa.Text().with_variant(
-                sa.Text(),
-                "postgresql",
-            ),
-            nullable=True,
-        ),
+        sa.Column("embedding", sa.Text(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_regulations_id"), "regulations", ["id"], unique=False)
     op.create_index(op.f("ix_regulations_regulation_type"), "regulations", ["regulation_type"], unique=False)
     op.create_index(op.f("ix_regulations_source_url"), "regulations", ["source_url"], unique=True)
-
-    # Alter embedding column to proper vector type
-    op.execute(f"ALTER TABLE regulations ALTER COLUMN embedding TYPE vector({VECTOR_DIM}) USING NULL::vector({VECTOR_DIM})")
 
     # Create documents table
     op.create_table(
@@ -102,7 +104,6 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_documents_id"), "documents", ["id"], unique=False)
     op.create_index(op.f("ix_documents_user_id"), "documents", ["user_id"], unique=False)
-    op.execute(f"ALTER TABLE documents ALTER COLUMN embedding TYPE vector({VECTOR_DIM}) USING NULL::vector({VECTOR_DIM})")
 
     # Create alerts table
     op.create_table(
@@ -138,17 +139,24 @@ def upgrade() -> None:
     op.create_index(op.f("ix_query_logs_id"), "query_logs", ["id"], unique=False)
     op.create_index(op.f("ix_query_logs_user_id"), "query_logs", ["user_id"], unique=False)
 
-    # Create vector similarity index (IVFFlat) for performance
-    op.execute(
-        "CREATE INDEX IF NOT EXISTS regulations_embedding_idx "
-        "ON regulations USING ivfflat (embedding vector_cosine_ops) "
-        "WITH (lists = 100)"
-    )
-    op.execute(
-        "CREATE INDEX IF NOT EXISTS documents_embedding_idx "
-        "ON documents USING ivfflat (embedding vector_cosine_ops) "
-        "WITH (lists = 100)"
-    )
+    # If pgvector is available, alter embedding columns to vector type and add indexes
+    if pgvector_available:
+        try:
+            conn.execute(sa.text(f"ALTER TABLE regulations ALTER COLUMN embedding TYPE vector({VECTOR_DIM}) USING NULL::vector({VECTOR_DIM})"))
+            conn.execute(sa.text(f"ALTER TABLE documents ALTER COLUMN embedding TYPE vector({VECTOR_DIM}) USING NULL::vector({VECTOR_DIM})"))
+            conn.execute(sa.text(
+                f"CREATE INDEX IF NOT EXISTS regulations_embedding_idx "
+                f"ON regulations USING ivfflat (embedding vector_cosine_ops) "
+                f"WITH (lists = 100)"
+            ))
+            conn.execute(sa.text(
+                f"CREATE INDEX IF NOT EXISTS documents_embedding_idx "
+                f"ON documents USING ivfflat (embedding vector_cosine_ops) "
+                f"WITH (lists = 100)"
+            ))
+        except Exception as e:
+            import logging
+            logging.getLogger("alembic").warning(f"Could not set vector column types: {e}")
 
 
 def downgrade() -> None:
