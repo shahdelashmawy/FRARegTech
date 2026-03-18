@@ -21,17 +21,21 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle."""
-    import asyncio
-
-    # Startup — run init_db with a timeout so a slow DB never blocks uvicorn
+    # Startup
     logger.info(f"Starting {settings.APP_NAME}...")
     try:
-        await asyncio.wait_for(init_db(), timeout=30)
+        await init_db()
         logger.info("Database initialized successfully")
-    except asyncio.TimeoutError:
-        logger.warning("Database initialization timed out — app starting anyway")
     except Exception as e:
-        logger.error(f"Database initialization failed: {e} — app starting anyway")
+        logger.error(f"Database initialization failed: {e}")
+
+    # Seed initial data
+    try:
+        from app.seeds import seed_initial_data
+        await seed_initial_data()
+        logger.info("Initial data seeded")
+    except Exception as e:
+        logger.warning(f"Seeding skipped or failed: {e}")
 
     yield
 
@@ -85,5 +89,19 @@ async def root():
 
 @app.get("/api/health", tags=["Health"])
 async def health_check():
-    """Health check endpoint — returns immediately so Railway healthchecks pass."""
-    return {"status": "ok", "app": settings.APP_NAME}
+    """Health check endpoint."""
+    from app.database import engine
+    db_status = "unknown"
+    try:
+        async with engine.connect() as conn:
+            from sqlalchemy import text
+            await conn.execute(text("SELECT 1"))
+        db_status = "healthy"
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)}"
+
+    return {
+        "status": "ok",
+        "database": db_status,
+        "app": settings.APP_NAME,
+    }
