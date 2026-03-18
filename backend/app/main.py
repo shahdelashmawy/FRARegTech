@@ -23,13 +23,15 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle."""
     import asyncio
 
-    # Startup
+    # Startup — run init_db with a timeout so a slow DB never blocks uvicorn
     logger.info(f"Starting {settings.APP_NAME}...")
     try:
-        await init_db()
+        await asyncio.wait_for(init_db(), timeout=30)
         logger.info("Database initialized successfully")
+    except asyncio.TimeoutError:
+        logger.warning("Database initialization timed out — app starting anyway")
     except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
+        logger.error(f"Database initialization failed: {e} — app starting anyway")
 
     yield
 
