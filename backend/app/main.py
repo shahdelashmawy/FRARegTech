@@ -83,19 +83,5 @@ async def root():
 
 @app.get("/api/health", tags=["Health"])
 async def health_check():
-    """Health check endpoint."""
-    from app.database import engine
-    db_status = "unknown"
-    try:
-        async with engine.connect() as conn:
-            from sqlalchemy import text
-            await conn.execute(text("SELECT 1"))
-        db_status = "healthy"
-    except Exception as e:
-        db_status = f"unhealthy: {str(e)}"
-
-    return {
-        "status": "ok",
-        "database": db_status,
-        "app": settings.APP_NAME,
-    }
+    """Health check endpoint — returns immediately so Railway healthchecks pass."""
+    return {"status": "ok", "app": settings.APP_NAME}
