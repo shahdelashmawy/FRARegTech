@@ -50,5 +50,5 @@ async def init_db():
 
         # Import all models to ensure they are registered
         from app.models import user, regulation, document, alert, query_log  # noqa
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
         logger.info("Database tables created")
