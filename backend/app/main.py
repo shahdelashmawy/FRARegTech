@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle."""
+    import asyncio
+
     # Startup
     logger.info(f"Starting {settings.APP_NAME}...")
     try:
@@ -28,14 +30,6 @@ async def lifespan(app: FastAPI):
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Database initialization failed: {e}")
-
-    # Seed initial data
-    try:
-        from app.seeds import seed_initial_data
-        await seed_initial_data()
-        logger.info("Initial data seeded")
-    except Exception as e:
-        logger.warning(f"Seeding skipped or failed: {e}")
 
     yield
 
